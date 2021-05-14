@@ -8,10 +8,6 @@ import "../accesscontrol/RetailerRole.sol";
 import "../core/Ownable.sol";
 
 contract SupplyChain is ConsumerRole, FarmerRole, DistributorRole, RetailerRole, Ownable {
-
-  // Define 'owner'
-  address owner;
-
   // Define a variable called 'upc' for Universal Product Code (UPC)
   uint  upc;
 
@@ -141,13 +137,13 @@ contract SupplyChain is ConsumerRole, FarmerRole, DistributorRole, RetailerRole,
   // and set 'sku' to 1
   // and set 'upc' to 1
   constructor() payable {
-    owner = msg.sender;
     sku = 1;
     upc = 1;
   }
 
   // Define a function 'kill' if required
   function kill() onlyOwner public {
+    address owner = owner();
     if (msg.sender == owner) {
       selfdestruct(payable(owner));
     }
