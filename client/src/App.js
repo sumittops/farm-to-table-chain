@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Anchor, Box, Grommet, Header, Heading, Main, Nav } from 'grommet';
+import { Box, Grommet, Header, Heading, Nav } from 'grommet';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
 
 import SupplyChainContract from "./contracts/SupplyChain.json";
@@ -24,20 +24,21 @@ class App extends Component {
       const accounts = await web3.eth.getAccounts();
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = SupplyChainContract.networks[networkId];
+      // deployedNetwork.address = '0x90A920250eF6c4cdF2B41CdA72738DF9e280E4Df';
       const instance = new web3.eth.Contract(
         SupplyChainContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
+      instance.options.address = '0x90A920250eF6c4cdF2B41CdA72738DF9e280E4Df';
 
       window.ethereum.on('accountsChanged', () => {
         web3.eth.getAccounts((error, accounts) => {
           if (error) { return; };
-          this.setState({ currentAccount: accounts[0] });
-          console.log(accounts[0], 'current account after account change');
+          this.setState({ currentAccount: accounts[0] }, this.setAccountType);
         });
       });
 
-      this.setState({ web3, contract: instance, currentAccount: accounts[0] }, this.getAccountType);
+      this.setState({ web3, contract: instance, currentAccount: accounts[0] }, this.setAccountType);
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`,
@@ -46,7 +47,7 @@ class App extends Component {
     }
   };
 
-  async getAccountType() {
+  async setAccountType() {
     const { currentAccount, contract } = this.state;
     const isFarmer = await contract.methods.isFarmer(currentAccount).call();
     if (isFarmer) {
