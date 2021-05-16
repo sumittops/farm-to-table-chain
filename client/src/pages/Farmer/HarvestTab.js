@@ -33,9 +33,7 @@ const HarvestTab = () => {
         originFarmLongitude,
         productNotes,
       ).estimateGas());
-      console.log(gasCost);
-      // const gasCost = 1000000;
-      contract.methods.harvestItem(
+      await contract.methods.harvestItem(
         upc,
         account,
         originFarmName,
@@ -50,7 +48,7 @@ const HarvestTab = () => {
       });
       reset();
     }
-  }, [account, contract, harvestItemState, reset]);
+  }, [account, contract, harvestItemState, reset, gasPrice]);
 
   return (
     <Box background="light-2" round="small" margin="medium" pad="medium">

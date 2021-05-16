@@ -6,7 +6,7 @@ import ManageTab from './ManageTab';
 const Farmer = () => {
   const [activeTabIdx, setActiveTabIdx] = useState(0);
   return (
-    <Main pad="medium">
+    <Main pad={{ horizontal: 'large', vertical: 'medium'}}>
       <Heading level="2">Hello, Farmer!</Heading>
       <Box align="center">
         <Tabs activeIndex={activeTabIdx} onActive={setActiveTabIdx}>

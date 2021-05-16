@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Box, Grommet, Header, Heading, Nav } from 'grommet';
+import { Box, Button, Grommet, Header, Heading, Nav } from 'grommet';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
 
 import SupplyChainContract from "./contracts/SupplyChain.json";
@@ -98,7 +98,6 @@ class App extends Component {
     };
     return accountTypeToPage[accountType];
   }
-
   render() {
     const { web3, contract, gasPrice, currentAccount, accountType } = this.state;
     const DashboardComponent = this.getDashboardComponent();
@@ -108,7 +107,7 @@ class App extends Component {
     return (
       <Grommet theme={theme}>
         <Router basename="/">
-          <Header pad="small" background="brand">
+          <Header pad={{ vertical: 'small', horizontal: 'large'}} background="brand">
             <Box align="center" gap="small" direction="row">
             <Link to="/">
               <Heading level="3" color="accent-1">
@@ -118,16 +117,17 @@ class App extends Component {
             </Box>
             <Nav direction="row">
               {
-                !DashboardComponent &&
-                <Link to="/signUp">Sign Up</Link>
-              }
-              {
-                DashboardComponent && 
-                <Link to="/dashboard">Dashboard</Link>
+                DashboardComponent && (
+                  <Button
+                    href="/dashboard"
+                    label="Go to Dashboard"
+                  />
+                )
               }
             </Nav>
           </Header>
           <ContractContext.Provider value={{
+            web3,
             contract,
             gasPrice,
             fetchItemFarmInfo: this.fetchItemBufferOne,
