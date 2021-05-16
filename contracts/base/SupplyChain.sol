@@ -16,9 +16,7 @@ contract SupplyChain is ConsumerRole, FarmerRole, DistributorRole, RetailerRole,
 
   // Define a public mapping 'items' that maps the UPC to an Item.
   mapping (uint => Item) items;
-  // mapping that tracks ownership by mapping address to an array of UPCs.
-  // mapping (address => uint[]) itemsOwnership; 
-
+  
   // Define a public mapping 'itemsHistory' that maps the UPC to an array of TxHash, 
   // that track its journey through the supply chain -- to be sent from DApp.
   mapping (uint => string[]) itemsHistory;
@@ -34,7 +32,7 @@ contract SupplyChain is ConsumerRole, FarmerRole, DistributorRole, RetailerRole,
     Shipped,    // 5
     Received,   // 6
     Purchased   // 7
-    }
+  }
 
   State constant defaultState = State.Harvested;
 
@@ -160,7 +158,7 @@ contract SupplyChain is ConsumerRole, FarmerRole, DistributorRole, RetailerRole,
     string memory  _originFarmLatitude,
     string memory  _originFarmLongitude,
     string memory  _productNotes
-  ) public onlyFarmer {
+  ) public {
     // Add the new item as part of Harvest
     Item memory newItem = Item({
       sku: sku,
@@ -180,7 +178,7 @@ contract SupplyChain is ConsumerRole, FarmerRole, DistributorRole, RetailerRole,
       consumerID: address(0)
     });
     items[_upc] = newItem;
-    // itemsOwnership[_originFarmerID].push(_upc);
+
     // Increment sku
     sku = sku + 1;
     

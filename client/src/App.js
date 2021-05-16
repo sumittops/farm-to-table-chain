@@ -14,9 +14,14 @@ import {
 import theme from './assets/theme'
 import { AccountContext, ContractContext } from './utils'
 class App extends Component {
-  state = {
-    web3: null, currentAccount: null, contract: null, accountType: null
-  };
+  constructor() {
+    super();
+    this.state = {
+      web3: null, currentAccount: null, contract: null, accountType: null
+    };
+    this.fetchItemBufferOne = this.fetchItemBufferOne.bind(this);
+    this.fetchItemBufferTwo = this.fetchItemBufferTwo.bind(this);
+  }
 
   componentDidMount = async () => {
     try {
@@ -24,12 +29,10 @@ class App extends Component {
       const accounts = await web3.eth.getAccounts();
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = SupplyChainContract.networks[networkId];
-      // deployedNetwork.address = '0x90A920250eF6c4cdF2B41CdA72738DF9e280E4Df';
       const instance = new web3.eth.Contract(
         SupplyChainContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
-      instance.options.address = '0x90A920250eF6c4cdF2B41CdA72738DF9e280E4Df';
 
       window.ethereum.on('accountsChanged', () => {
         web3.eth.getAccounts((error, accounts) => {
@@ -37,8 +40,14 @@ class App extends Component {
           this.setState({ currentAccount: accounts[0] }, this.setAccountType);
         });
       });
-
-      this.setState({ web3, contract: instance, currentAccount: accounts[0] }, this.setAccountType);
+      
+      const gasPrice = Number(await web3.eth.getGasPrice());
+      this.setState({
+        web3,
+        contract: instance,
+        currentAccount: accounts[0],
+        gasPrice,
+      }, this.setAccountType);
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`,
@@ -67,6 +76,18 @@ class App extends Component {
     }
   }
 
+  async fetchItemBufferOne(_upc) {
+    const { contract } = this.state; 
+    const data = await contract.methods.fetchItemBufferOne(_upc).call();
+    return parseInt(data.itemSKU) > 0 ? data : null;
+  }
+
+  async fetchItemBufferTwo(_upc) {
+    const { contract } = this.state; 
+    const data = await contract.methods.fetchItemBufferTwo(_upc).call();
+    return parseInt(data.itemSKU) > 0 ? data : null;
+  }
+
   getDashboardComponent() {
     const { accountType } = this.state;
     const accountTypeToPage = {
@@ -79,7 +100,7 @@ class App extends Component {
   }
 
   render() {
-    const { web3, contract, currentAccount } = this.state;
+    const { web3, contract, gasPrice, currentAccount, accountType } = this.state;
     const DashboardComponent = this.getDashboardComponent();
     if (!web3) {
       return <Heading level="3">Loading Web3, accounts, and contract...</Heading>;
@@ -106,8 +127,15 @@ class App extends Component {
               }
             </Nav>
           </Header>
-          <ContractContext.Provider value={contract}>
-            <AccountContext.Provider value={currentAccount}>
+          <ContractContext.Provider value={{
+            contract,
+            gasPrice,
+            fetchItemFarmInfo: this.fetchItemBufferOne,
+            fetchItemSaleInfo: this.fetchItemBufferTwo,
+          }}>
+            <AccountContext.Provider value={{
+              account: currentAccount, accountType
+            }}>
               <Switch>
                 <Route component={DashboardComponent} path="/dashboard" />
                 <Route component={Home} path="/" /> 

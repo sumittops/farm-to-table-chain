@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { Box, Button, Form, FormField, Grid, Heading, Main, Tab, Tabs, TextInput } from 'grommet';
+import React, { useState } from 'react';
+import { Box, Heading, Main, Tab, Tabs } from 'grommet';
 import HarvestTab from './HarvestTab';
+import ManageTab from './ManageTab';
 
 const Farmer = () => {
   const [activeTabIdx, setActiveTabIdx] = useState(0);
@@ -12,15 +13,9 @@ const Farmer = () => {
           <Tab title="Harvest New">
             <HarvestTab />
           </Tab>
-          <Tab title="Ready to Pack">
-            <Button label="Pack" />
-          </Tab>
-          <Tab title="Ready to Sale">
-            <Button label="Put on Sale" />
-          </Tab>
-          <Tab title="Ready to Ship">
-            <Button label="Ship" /> 
-          </Tab>
+          <Tab title="Manage Harvest">
+            <ManageTab />
+          </Tab>          
         </Tabs>
       </Box>
     </Main>

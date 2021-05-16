@@ -1,21 +1,19 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { Box, Button, Form, FormField, Grid, Heading, TextInput } from 'grommet';
+import { Box, Button, Form, FormField, Grid, TextInput } from 'grommet';
 import { AccountContext, ContractContext, validateNotEmpty } from '../../utils';
 
 const HarvestTab = () => {
-  const [harvestItemState, setHarvestState] = useState({
-    upc: 1,
-  });
-  const reset = useCallback((upc) => setHarvestState({
-    upc,
+  const [harvestItemState, setHarvestState] = useState({});
+  const reset = useCallback(() => setHarvestState({
+    upc: '',
     originFarmName: '',
     originFarmInformation: '',
     originFarmLatitude: '',
     originFarmLongitude: '',
     productNotes: '',
   }), [setHarvestState]);
-  const account = useContext(AccountContext);
-  const contract = useContext(ContractContext);
+  const { account } = useContext(AccountContext);
+  const { contract, gasPrice } = useContext(ContractContext);
   const handleHarverstSubmit = useCallback(async () => {
     const {
       upc,
@@ -26,7 +24,18 @@ const HarvestTab = () => {
     let isValid = validateNotEmpty({ originFarmName, originFarmInformation, productNotes, originFarmLatitude, originFarmLongitude });
     isValid = isValid && !!upc;
     if (isValid) {
-      await contract.methods.harvestItem(
+      const gasCost = Number(await contract.methods.harvestItem(
+        upc,
+        account,
+        originFarmName,
+        originFarmInformation,
+        originFarmLatitude,
+        originFarmLongitude,
+        productNotes,
+      ).estimateGas());
+      console.log(gasCost);
+      // const gasCost = 1000000;
+      contract.methods.harvestItem(
         upc,
         account,
         originFarmName,
@@ -34,8 +43,12 @@ const HarvestTab = () => {
         originFarmLatitude,
         originFarmLongitude,
         productNotes
-      ).call();
-      reset(upc + 1);
+      ).send({
+        from: account,
+        gasPrice,
+        gas: gasCost
+      });
+      reset();
     }
   }, [account, contract, harvestItemState, reset]);
 
