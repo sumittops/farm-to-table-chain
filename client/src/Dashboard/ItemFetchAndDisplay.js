@@ -1,36 +1,22 @@
-import React, { useState, useCallback, useMemo, useContext } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { Box, DataTable, FormField, Text, TextInput } from 'grommet'
-import { ContractContext, transformItemFarmInfoToTableData, transformItemSaleInfoToTableData } from '../utils';
 
-const ItemFetchAndDisplay = ({ onFetched }) => {
+
+const ItemFetchAndDisplay = ({ tableInfoData, fetchItemByUpc, searchErrorText, setSearchErrorText }) => {
   const [upcText, setUpcText] = useState('');
-  const [searchErrorText, setSearchErrorText] = useState('');
-  const [fetchedItemData, setFetchedItemData] = useState([]);
-  const { fetchItemFarmInfo, fetchItemSaleInfo } = useContext(ContractContext);
   const handleUpcFieldChange = useCallback((e) => {
     setUpcText(e.target.value);
   }, [setUpcText]);
   const handleUpcFieldBlur = useCallback(async () => {
     const upc = parseInt(upcText);
     if (isNaN(upc)) return;
-    const [farmInfo, saleInfo] = await Promise.all([
-      fetchItemFarmInfo(upc), fetchItemSaleInfo(upc)
-    ]);
-    if (!farmInfo) {
-      return setSearchErrorText('Item Not Found');
-    }
-    setFetchedItemData([
-      ...transformItemFarmInfoToTableData(farmInfo),
-      ...transformItemSaleInfoToTableData(saleInfo),
-    ]);
-    onFetched({ ...farmInfo, ...saleInfo });
-  }, [fetchItemFarmInfo, fetchItemSaleInfo, upcText, onFetched]);
+    await fetchItemByUpc(upc);
+  }, [fetchItemByUpc, upcText]);
 
   const handleUpcFieldFocus = useCallback(() => {
-    setFetchedItemData([]);
+    fetchItemByUpc(null);
     setSearchErrorText('');
-    onFetched({});
-  }, [setFetchedItemData, setSearchErrorText, onFetched]);
+  }, [fetchItemByUpc, setSearchErrorText]);
 
   const tableColumns = useMemo(() => ([{
     property: 'name',
@@ -54,7 +40,7 @@ const ItemFetchAndDisplay = ({ onFetched }) => {
         />
       </FormField>
       <Box pad="small" margin="small">
-        { fetchedItemData && fetchedItemData.length ? <DataTable columns={tableColumns} data={fetchedItemData} /> : null }
+        { tableInfoData && tableInfoData.length ? <DataTable columns={tableColumns} data={tableInfoData} /> : null }
         <Text size="medium" color="status-error">{searchErrorText}</Text> 
       </Box>
     </>

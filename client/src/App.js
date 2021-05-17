@@ -1,18 +1,11 @@
 import React, { Component } from "react";
-import { Box, Button, Grommet, Header, Heading, Nav } from 'grommet';
-import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import { Box, Grommet, Header, Heading } from 'grommet';
 
 import SupplyChainContract from "./contracts/SupplyChain.json";
 import getWeb3 from "./getWeb3";
-import {
-  Home,
-  Distributor,
-  Consumer,
-  Farmer,
-  Retailer
-} from './pages';
 import theme from './assets/theme'
 import { AccountContext, ContractContext } from './utils'
+import Dashboard from './Dashboard';
 class App extends Component {
   constructor() {
     super();
@@ -88,61 +81,33 @@ class App extends Component {
     return parseInt(data.itemSKU) > 0 ? data : null;
   }
 
-  getDashboardComponent() {
-    const { accountType } = this.state;
-    const accountTypeToPage = {
-      'FARMER': Farmer,
-      'DISTRIBUTOR': Distributor,
-      'RETAILER': Retailer,
-      'CONSUMER': Consumer
-    };
-    return accountTypeToPage[accountType];
-  }
   render() {
     const { web3, contract, gasPrice, currentAccount, accountType } = this.state;
-    const DashboardComponent = this.getDashboardComponent();
     if (!web3) {
       return <Heading level="3">Loading Web3, accounts, and contract...</Heading>;
     }
     return (
       <Grommet theme={theme}>
-        <Router basename="/">
-          <Header pad={{ vertical: 'small', horizontal: 'large'}} background="brand">
-            <Box align="center" gap="small" direction="row">
-            <Link to="/">
-              <Heading level="3" color="accent-1">
-                Farm2TableChain
-              </Heading>
-            </Link>
-            </Box>
-            <Nav direction="row">
-              {
-                DashboardComponent && (
-                  <Button
-                    href="/dashboard"
-                    label="Go to Dashboard"
-                  />
-                )
-              }
-            </Nav>
-          </Header>
-          <ContractContext.Provider value={{
-            web3,
-            contract,
-            gasPrice,
-            fetchItemFarmInfo: this.fetchItemBufferOne,
-            fetchItemSaleInfo: this.fetchItemBufferTwo,
+        <Header pad={{ vertical: 'small', horizontal: 'large'}} background="brand">
+          <Box align="center" gap="small" direction="row">
+            <Heading level="3" color="accent-1">
+              Farm2Table
+            </Heading>
+          </Box>
+        </Header>
+        <ContractContext.Provider value={{
+          web3,
+          contract,
+          gasPrice,
+          fetchItemFarmInfo: this.fetchItemBufferOne,
+          fetchItemSaleInfo: this.fetchItemBufferTwo,
+        }}>
+          <AccountContext.Provider value={{
+            account: currentAccount, accountType
           }}>
-            <AccountContext.Provider value={{
-              account: currentAccount, accountType
-            }}>
-              <Switch>
-                <Route component={DashboardComponent} path="/dashboard" />
-                <Route component={Home} path="/" /> 
-              </Switch>
-            </AccountContext.Provider>
-          </ContractContext.Provider>
-        </Router>
+            <Dashboard />
+          </AccountContext.Provider>
+        </ContractContext.Provider>
       </Grommet>
     );
   }

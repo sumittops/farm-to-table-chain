@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { Box, Button, Form, FormField, Grid, TextInput } from 'grommet';
-import { AccountContext, ContractContext, validateNotEmpty } from '../../utils';
+import { AccountContext, ContractContext, validateNotEmpty } from '../utils';
 
 const HarvestTab = () => {
   const [harvestItemState, setHarvestState] = useState({});
