@@ -51,19 +51,20 @@ class App extends Component {
 
   async setAccountType() {
     const { currentAccount, contract } = this.state;
-    const isFarmer = await contract.methods.isFarmer(currentAccount);
+    const isFarmer = await contract.methods.isFarmer(currentAccount).call();
+    console.log(isFarmer);
     if (isFarmer) {
       return this.setState({ accountType: 'FARMER' });
     }
-    const isDistributor = await contract.methods.isDistributor(currentAccount);
+    const isDistributor = await contract.methods.isDistributor(currentAccount).call();
     if (isDistributor) {
       return this.setState({ accountType: 'DISTRIBUTOR' });
     }
-    const isRetailer = await contract.methods.isRetailer(currentAccount);
+    const isRetailer = await contract.methods.isRetailer(currentAccount).call();
     if (isRetailer) {
       return this.setState({ accountType: 'RETAILER' });
     }
-    const isConsumer = await contract.methods.isConsumer(currentAccount);
+    const isConsumer = await contract.methods.isConsumer(currentAccount).call();
     if (isConsumer) {
       return this.setState({ accountType: 'CONSUMER' });
     }
@@ -71,13 +72,13 @@ class App extends Component {
 
   async fetchItemBufferOne(_upc) {
     const { contract } = this.state; 
-    const data = await contract.methods.fetchItemBufferOne(_upc);
+    const data = await contract.methods.fetchItemBufferOne(_upc).call();
     return parseInt(data.itemSKU) > 0 ? data : null;
   }
 
   async fetchItemBufferTwo(_upc) {
     const { contract } = this.state; 
-    const data = await contract.methods.fetchItemBufferTwo(_upc);
+    const data = await contract.methods.fetchItemBufferTwo(_upc).call();
     return parseInt(data.itemSKU) > 0 ? data : null;
   }
 
