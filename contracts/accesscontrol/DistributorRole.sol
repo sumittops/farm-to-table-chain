@@ -18,7 +18,7 @@ contract DistributorRole {
 
   // Define a modifier that checks to see if msg.sender has the appropriate role
   modifier onlyDistributor() {
-    require(isDistributor(msg.sender), 'Operation only available to Distributors');
+    require(isDistributor(msg.sender), 'Only available to Distributors');
     _;
   }
 

@@ -1,9 +1,11 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { Box, Button, Form, FormField, Grid, TextInput } from 'grommet';
 import { AccountContext, ContractContext, validateNotEmpty } from '../utils';
+import Toast from './Toast';
 
 const HarvestTab = () => {
   const [harvestItemState, setHarvestState] = useState({});
+  const [actionErrorMsg, setActionErrorMsg] = useState('');
   const reset = useCallback(() => setHarvestState({
     upc: '',
     originFarmName: '',
@@ -23,33 +25,37 @@ const HarvestTab = () => {
     } = harvestItemState;
     let isValid = validateNotEmpty({ originFarmName, originFarmInformation, productNotes, originFarmLatitude, originFarmLongitude });
     isValid = isValid && !!upc;
-    if (isValid) {
-      const gasCost = Number(await contract.methods.harvestItem(
-        upc,
-        account,
-        originFarmName,
-        originFarmInformation,
-        originFarmLatitude,
-        originFarmLongitude,
-        productNotes,
-      ).estimateGas());
-      await contract.methods.harvestItem(
-        upc,
-        account,
-        originFarmName,
-        originFarmInformation,
-        originFarmLatitude,
-        originFarmLongitude,
-        productNotes
-      ).send({
-        from: account,
-        gasPrice,
-        gas: gasCost
-      });
-      reset();
+    try {
+      if (isValid) {
+        const gasCost = Number(await contract.methods.harvestItem(
+          upc,
+          account,
+          originFarmName,
+          originFarmInformation,
+          originFarmLatitude,
+          originFarmLongitude,
+          productNotes,
+        ).estimateGas());
+        await contract.methods.harvestItem(
+          upc,
+          account,
+          originFarmName,
+          originFarmInformation,
+          originFarmLatitude,
+          originFarmLongitude,
+          productNotes
+        ).send({
+          from: account,
+          gasPrice,
+          gas: gasCost
+        });
+        reset();
+      } 
+    } catch (e) {
+      setActionErrorMsg(e.message);
     }
-  }, [account, contract, harvestItemState, reset, gasPrice]);
-
+  }, [account, contract, harvestItemState, reset, gasPrice, setActionErrorMsg]);
+  const resetActionErrorMsg = useCallback(() => setActionErrorMsg(''), []);
   return (
     <Box background="light-2" round="small" margin="medium" pad="medium">
       <Form
@@ -84,6 +90,7 @@ const HarvestTab = () => {
           <Button type="submit" primary label="Harvest!" />
         </Box>
       </Form>
+      { actionErrorMsg ? <Toast msg={actionErrorMsg} onClose={resetActionErrorMsg} /> : null }
     </Box>
   );
 };

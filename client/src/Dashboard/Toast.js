@@ -6,7 +6,7 @@ const Toast = ({ duration = 3000, msg = '', onClose, target = null }) => {
     setTimeout(() => {
       onClose();
     }, duration);
-  }, []);
+  }, [onClose, duration]);
   return <Layer
     full
     position="bottom"
@@ -14,7 +14,6 @@ const Toast = ({ duration = 3000, msg = '', onClose, target = null }) => {
     target={target}
   >
     <Box
-      height="72px"
       round="medium"
       width="500px" background="status-critical"
       pad={{ vertical: 'medium', horizontal: 'small' }}

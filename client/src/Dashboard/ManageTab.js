@@ -82,21 +82,23 @@ const ManageTab = () => {
              : null }
             <Button disabled={disableActions} label="Process" onClick={makeHandleAction('processItem')} gap="small" />
             <Button disabled={disableActions} label="Pack" onClick={makeHandleAction('packItem')} gap="small" />
-            <Button disabled={disableActions} label="Put on Sale" onClick={makeHandleAction('sellItem')} gap="small" />
-            <Button disabled={disableActions} primary label="Ship" onClick={makeHandleAction('shipItem')} gap="small" /> 
+            <Button disabled={disableActions} primary label="Put on Sale" onClick={makeHandleAction('sellItem')} gap="small" />
           </>
         );
-      case 'DISTRIBUTOR':
-        return (
-          <>
-            <Box width="200px">
+        case 'DISTRIBUTOR':
+          const isReadyToBuy = Number(_get(fetchedItemData, 'itemState', false)) === 3;
+          const isReadyToShip = Number(_get(fetchedItemData, 'itemState', false)) === 4;
+          return (
+            <>
+            <Box width="200px" direction="row" gap="small">
               <TextInput
                 placeholder="Amount (ETH)"
                 value={sellPrice}
                 onChange={({ target: { value }}) => setSellPrice(value)}
               />
+              <Button disabled={disableActions || !isReadyToBuy} primary label="Buy" onClick={makeHandleAction('buyItem')} gap="small" />
             </Box>
-            <Button disabled={disableActions} primary label="Buy" onClick={makeHandleAction('buyItem')} gap="small" />
+            <Button disabled={disableActions || !isReadyToShip} label="Ship" onClick={makeHandleAction('shipItem')} gap="small" />
           </>
         );
       case 'RETAILER':
@@ -115,7 +117,7 @@ const ManageTab = () => {
           return null;
     }
   }, [accountType, makeHandleAction, fetchedItemData, sellPrice]);
-
+  const resetErrorMsg = useCallback(() => setActionErrorMsg(''), [setActionErrorMsg]);
   const disableActions = _keys(fetchedItemData).length === 0;
   
   return (
@@ -129,7 +131,7 @@ const ManageTab = () => {
       <Box direction="row" justify="between" align="center" pad={{ vertical: 'medium' }}>
         { getAccountActionButtons(disableActions)}
       </Box>
-      { actionErrorMsg ? <Toast msg={actionErrorMsg} onClose={() => setActionErrorMsg('')} /> : null }
+      { actionErrorMsg ? <Toast msg={actionErrorMsg} onClose={resetErrorMsg} /> : null }
     </Box>
   );
 };
